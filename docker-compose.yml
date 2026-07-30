@@ -1,0 +1,176 @@
+services:
+
+  influxdb:
+    image: influxdb:2.7
+    container_name: influxdb
+    restart: unless-stopped
+
+    ports:
+      - "8086:8086"
+
+    environment:
+      DOCKER_INFLUXDB_INIT_MODE: setup
+      DOCKER_INFLUXDB_INIT_USERNAME: admin
+      DOCKER_INFLUXDB_INIT_PASSWORD: admin123
+      DOCKER_INFLUXDB_INIT_ORG: mlops
+      DOCKER_INFLUXDB_INIT_BUCKET: sensors
+      DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: token
+
+    volumes:
+      - ./data/influxdb:/var/lib/influxdb2
+
+    networks:
+      - mlops
+
+
+  postgres:
+    image: postgres:16
+    container_name: postgres
+    restart: unless-stopped
+
+    environment:
+      POSTGRES_USER: mlflow
+      POSTGRES_PASSWORD: mlflow
+      POSTGRES_DB: mlflow
+
+    ports:
+      - "5432:5432"
+
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U mlflow -d mlflow" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+
+    volumes:
+      - ./data/postgres:/var/lib/postgresql/data
+
+    networks:
+      - mlops
+
+
+  minio:
+    image: minio/minio:latest
+    container_name: minio
+    restart: unless-stopped
+
+    command: server /data --console-address ":9001"
+
+    environment:
+      MINIO_ROOT_USER: minio
+      MINIO_ROOT_PASSWORD: miniopassword
+
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+
+    healthcheck:
+      test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+    volumes:
+      - ./data/minio:/data
+
+    networks:
+      - mlops
+
+
+  minio-init:
+    image: minio/mc:latest
+
+    depends_on:
+      minio:
+        condition: service_healthy
+
+    volumes:
+      - ./minio/init.sh:/init.sh
+
+    entrypoint: [ "/bin/sh", "/init.sh" ]
+
+    networks:
+      - mlops
+
+    restart: "no"
+
+
+  mlflow:
+    build:
+      context: ./mlflow
+
+    container_name: mlflow
+
+    restart: unless-stopped
+
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio-init:
+        condition: service_completed_successfully
+
+    ports:
+      - "5000:5000"
+
+    environment:
+      AWS_ACCESS_KEY_ID: minio
+      AWS_SECRET_ACCESS_KEY: miniopassword
+      MLFLOW_S3_ENDPOINT_URL: http://minio:9000
+
+    command: >
+      mlflow server
+      --host 0.0.0.0
+      --port 5000
+      --backend-store-uri postgresql://mlflow:mlflow@postgres:5432/mlflow
+      --artifacts-destination s3://mlflow
+
+    networks:
+      - mlops
+
+
+  sensor:
+    build:
+      context: ./sensor
+
+    container_name: sensor
+
+    depends_on:
+      - influxdb
+
+    networks:
+      - mlops
+
+
+  trainer:
+    build:
+      context: ./trainer
+
+    container_name: trainer
+
+    depends_on:
+      - influxdb
+      - mlflow
+
+    networks:
+      - mlops
+
+
+  serving:
+    build:
+      context: ./serving
+
+    container_name: serving
+
+    depends_on:
+      - mlflow
+
+    ports:
+      - "8000:8000"
+
+    networks:
+      - mlops
+
+
+networks:
+  mlops:
