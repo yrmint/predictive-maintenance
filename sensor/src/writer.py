@@ -1,6 +1,8 @@
+
 from influxdb_client import InfluxDBClient, Point
 from influxdb_client.client.write_api import SYNCHRONOUS
 
+from sensor.src.config import DEVICE_ID
 from sensor.src.models import SensorReading
 from shared import influxdb_config
 
@@ -18,9 +20,10 @@ class InfluxWriter:
         self.write_api = self.client.write_api(write_options=SYNCHRONOUS)
 
     def write(self, reading: SensorReading) -> None:
+        device_id = DEVICE_ID
         point = (
             Point("sensor")
-            .tag("device_id", "motor_001")
+            .tag("device_id", device_id)
             .time(reading.timestamp)
         )
         fields = {

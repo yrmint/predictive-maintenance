@@ -140,12 +140,10 @@ services:
       - mlops
 
 
-  sensor:
+  x-sensor: &sensor-base
     build:
       context: .
       dockerfile: sensor/Dockerfile
-
-    container_name: sensor
 
     restart: unless-stopped
 
@@ -162,6 +160,35 @@ services:
     networks:
       - mlops
 
+  sensor-001:
+    <<: *sensor-base
+    container_name: sensor-001
+    environment:
+      DEVICE_ID: motor_001
+      INFLUX_URL: http://influxdb:8086
+      INFLUX_TOKEN: token
+      INFLUX_ORG: mlops
+      INFLUX_BUCKET: sensors
+
+  sensor-002:
+    <<: *sensor-base
+    container_name: sensor-002
+    environment:
+      DEVICE_ID: motor_002
+      INFLUX_URL: http://influxdb:8086
+      INFLUX_TOKEN: token
+      INFLUX_ORG: mlops
+      INFLUX_BUCKET: sensors
+
+  sensor-003:
+    <<: *sensor-base
+    container_name: sensor-003
+    environment:
+      DEVICE_ID: motor_003
+      INFLUX_URL: http://influxdb:8086
+      INFLUX_TOKEN: token
+      INFLUX_ORG: mlops
+      INFLUX_BUCKET: sensors
 
   trainer:
     build:
