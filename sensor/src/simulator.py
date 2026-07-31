@@ -3,7 +3,7 @@ from __future__ import annotations
 import random
 from datetime import UTC, datetime
 
-from sensor.models import SensorReading
+from sensor.src.models import SensorReading
 
 
 class EquipmentSimulator:
