@@ -6,6 +6,9 @@ from shared import influxdb_config
 
 
 class InfluxWriter:
+    """
+    Writes simulation data to influxdb bucket.
+    """
     def __init__(self) -> None:
         self.client = InfluxDBClient(
             url=influxdb_config.INFLUX_URL,
@@ -41,3 +44,6 @@ class InfluxWriter:
             org=influxdb_config.INFLUX_ORG,
             record=point
         )
+
+    def close(self) -> None:
+        self.client.close()
