@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import random
+from datetime import datetime, UTC
 
 from sensor.models import SensorReading
 
@@ -22,7 +23,48 @@ class EquipmentSimulator:
 
     def step(self) -> SensorReading:
         """Advance simulation by one time step."""
-        pass
+        if not self.failed:
+            self._update_load()
+            self._update_wear()
+
+        temperature = self._temperature()
+        pressure = self._pressure()
+        vibration = self._vibration()
+        rpm = self._rpm()
+        current = self._current()
+        humidity = self._humidity()
+
+        if not self.failed:
+            failure_probability = (
+                0.0002
+                + 0.15 * self.wear
+                + 0.01 * max(vibration - 1.5, 0)
+                + 0.005 * max(temperature - 80, 0)
+            )
+
+            if random.random() < failure_probability:
+                self.failed = True
+
+        if self.failed:
+            temperature = random.gauss(110, 2)
+            pressure = random.gauss(2.0, 0.2)
+            vibration = random.gauss(6.0, 0.4)
+            rpm = random.gauss(250, 50)
+            current = random.gauss(2.0, 0.3)
+            humidity = random.gauss(45, 3)
+
+        return SensorReading(
+            timestamp=datetime.now(UTC),
+            temperature=round(temperature, 2),
+            pressure=round(pressure, 2),
+            vibration=round(vibration, 2),
+            rpm=round(rpm, 0),
+            current=round(current, 2),
+            humidity=round(humidity, 1),
+            load=round(self.load, 3),
+            wear=round(self.wear, 4),
+            failure=int(self.failed),
+        )
 
     def repair(self) -> None:
         self.wear = 0.0
