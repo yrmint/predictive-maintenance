@@ -4,7 +4,6 @@ import time
 from sensor.src.simulator import EquipmentSimulator
 from sensor.src.writer import InfluxWriter
 
-
 logging.basicConfig(
     level=logging.INFO,
     format="%(asctime)s %(levelname)s %(message)s",

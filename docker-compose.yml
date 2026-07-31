@@ -16,6 +16,17 @@ services:
       DOCKER_INFLUXDB_INIT_BUCKET: sensors
       DOCKER_INFLUXDB_INIT_ADMIN_TOKEN: token
 
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "influx",
+          "ping"
+        ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
     volumes:
       - ./data/influxdb:/var/lib/influxdb2
 
@@ -131,12 +142,22 @@ services:
 
   sensor:
     build:
-      context: ./sensor
+      context: .
+      dockerfile: sensor/Dockerfile
 
     container_name: sensor
 
+    restart: unless-stopped
+
     depends_on:
-      - influxdb
+      influxdb:
+        condition: service_healthy
+
+    environment:
+      INFLUX_URL: http://influxdb:8086
+      INFLUX_TOKEN: token
+      INFLUX_ORG: mlops
+      INFLUX_BUCKET: sensors
 
     networks:
       - mlops

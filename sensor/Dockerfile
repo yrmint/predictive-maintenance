@@ -2,4 +2,9 @@ FROM python:3.12-slim
 
 WORKDIR /app
 
-CMD ["sleep", "infinity"]
+COPY shared /app/shared
+COPY sensor /app/sensor
+
+RUN pip install --no-cache-dir ./sensor
+
+CMD ["python", "-m", "sensor.src.main"]
