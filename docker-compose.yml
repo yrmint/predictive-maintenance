@@ -196,6 +196,9 @@ services:
 
     container_name: trainer
 
+    environment:
+      TRAINING_WINDOW: "-24h"
+
     depends_on:
       - influxdb
       - mlflow

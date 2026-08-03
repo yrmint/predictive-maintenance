@@ -1,13 +1,14 @@
+import os
+
 import pandas as pd
 from influxdb_client import InfluxDBClient
 
 from shared import influxdb_config
 
 
-def load_data(start: str="-24h") -> pd.DataFrame:
+def load_data() -> pd.DataFrame:
     """
     Read data from InfluxDB bucket mlops.
-    :param start: start of the time range from which data is to be selected.
     :return: DataFrame with selected records.
     """
 
@@ -16,6 +17,8 @@ def load_data(start: str="-24h") -> pd.DataFrame:
         token=influxdb_config.INFLUX_TOKEN,
         org=influxdb_config.INFLUX_ORG
     )
+    
+    start = os.getenv("TRAINING_WINDOW")
 
     query = f"""
     from(bucket: "sensors")
