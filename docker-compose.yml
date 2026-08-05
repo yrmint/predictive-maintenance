@@ -145,6 +145,8 @@ services:
       context: .
       dockerfile: sensor/Dockerfile
 
+    container_name: sensor-000
+
     restart: unless-stopped
 
     depends_on:
@@ -152,6 +154,7 @@ services:
         condition: service_healthy
 
     environment:
+      DEVICE_ID: motor_000
       INFLUX_URL: http://influxdb:8086
       INFLUX_TOKEN: token
       INFLUX_ORG: mlops
