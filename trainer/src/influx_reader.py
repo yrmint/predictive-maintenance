@@ -4,6 +4,7 @@ import pandas as pd
 from influxdb_client import InfluxDBClient
 
 from shared import influxdb_config
+from config import TrainingConfig
 
 
 def load_data() -> pd.DataFrame:
@@ -18,7 +19,7 @@ def load_data() -> pd.DataFrame:
         org=influxdb_config.INFLUX_ORG
     )
     
-    start = os.getenv("TRAINING_WINDOW")
+    start = TrainingConfig.TRAINING_WINDOW
 
     query = f"""
     from(bucket: "sensors")
