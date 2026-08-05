@@ -1,9 +1,9 @@
 
 import pandas as pd
-from trainer.src.config import training_config
 from influxdb_client import InfluxDBClient
 
 from shared.influxdb_config import influxdb_config
+from trainer.src.config import training_config
 
 
 def load_data() -> pd.DataFrame:
@@ -17,7 +17,7 @@ def load_data() -> pd.DataFrame:
         token=influxdb_config.INFLUX_TOKEN,
         org=influxdb_config.INFLUX_ORG
     )
-    
+
     start = training_config.TRAINING_WINDOW
 
     query = f"""
@@ -28,15 +28,17 @@ def load_data() -> pd.DataFrame:
 
     tables = client.query_api().query(query)
 
-    records = []
+    results = {}
 
     for table in tables:
         for record in table.records:
-            records.append(
-                {
-                    "time": record.get_time(),
-                    record.get_field(): record.get_value()
-                }
-            )
+            time = record.get_time().isoformat()
 
-    return pd.DataFrame(records)
+            if time not in results:
+                results[time] = {
+                    "time": time,
+                }
+
+            results[time][record["_field"]] = record["_value"]
+
+    return pd.DataFrame(results.values())
