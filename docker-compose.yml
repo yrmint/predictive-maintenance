@@ -196,6 +196,13 @@ services:
 
     container_name: trainer
 
+    environment:
+      DEVICE_ID: motor_003
+      INFLUX_URL: http://influxdb:8086
+      INFLUX_TOKEN: token
+      INFLUX_ORG: mlops
+      INFLUX_BUCKET: sensors
+
     depends_on:
       - influxdb
       - mlflow

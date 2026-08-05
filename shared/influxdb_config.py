@@ -1,6 +1,18 @@
-import os
+from pathlib import Path
+from pydantic_settings import BaseSettings, SettingsConfigDict
 
-INFLUX_URL = os.getenv("INFLUX_URL")
-INFLUX_TOKEN = os.getenv("INFLUX_TOKEN")
-INFLUX_ORG = os.getenv("INFLUX_ORG")
-INFLUX_BUCKET = os.getenv("INFLUX_BUCKET")
+BASE_DIR = Path(__file__).resolve().parent.parent
+
+class InfluxDBConfig(BaseSettings):
+    model_config = SettingsConfigDict(
+        env_file=BASE_DIR / ".env",
+        extra="ignore",
+    )
+
+    INFLUX_URL: str
+    INFLUX_TOKEN: str
+    INFLUX_ORG: str
+    INFLUX_BUCKET: str
+
+
+influxdb_config = InfluxDBConfig()

@@ -4,7 +4,7 @@ from influxdb_client.client.write_api import SYNCHRONOUS
 
 from sensor.src.config import DEVICE_ID
 from sensor.src.models import SensorReading
-from shared import influxdb_config
+from shared.influxdb_config import influxdb_config
 
 
 class InfluxWriter:

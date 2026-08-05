@@ -1,9 +1,9 @@
 
 import pandas as pd
-from config import TrainingConfig
+from trainer.src.config import training_config
 from influxdb_client import InfluxDBClient
 
-from shared import influxdb_config
+from shared.influxdb_config import influxdb_config
 
 
 def load_data() -> pd.DataFrame:
@@ -18,7 +18,7 @@ def load_data() -> pd.DataFrame:
         org=influxdb_config.INFLUX_ORG
     )
     
-    start = TrainingConfig.TRAINING_WINDOW
+    start = training_config.TRAINING_WINDOW
 
     query = f"""
     from(bucket: "sensors")
