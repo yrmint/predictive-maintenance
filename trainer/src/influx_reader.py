@@ -29,6 +29,11 @@ def load_data() -> pd.DataFrame:
     tables = client.query_api().query(query)
 
     results = {}
+    for table in tables:
+        for record in table.records:
+            print(record.values)
+            break
+        break
 
     for table in tables:
         for record in table.records:
@@ -37,6 +42,7 @@ def load_data() -> pd.DataFrame:
             if time not in results:
                 results[time] = {
                     "time": time,
+                    "device_id": record.values.get("device_id"),
                 }
 
             results[time][record["_field"]] = record["_value"]
