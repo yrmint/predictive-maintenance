@@ -1,10 +1,9 @@
-import os
 
 import pandas as pd
+from config import TrainingConfig
 from influxdb_client import InfluxDBClient
 
 from shared import influxdb_config
-from config import TrainingConfig
 
 
 def load_data() -> pd.DataFrame:
