@@ -29,11 +29,6 @@ def load_data() -> pd.DataFrame:
     tables = client.query_api().query(query)
 
     results = {}
-    for table in tables:
-        for record in table.records:
-            print(record.values)
-            break
-        break
 
     for table in tables:
         for record in table.records:
