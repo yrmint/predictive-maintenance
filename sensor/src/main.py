@@ -33,7 +33,7 @@ def main() -> None:
                 logging.warning("Equipment failure detected. Repairing...")
                 simulator.repair()
 
-            time.sleep(1)
+            time.sleep(.1)
 
     except KeyboardInterrupt:
         logging.info("Stopping sensor simulator...")
