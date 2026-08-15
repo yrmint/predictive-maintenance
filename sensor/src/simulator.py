@@ -46,12 +46,14 @@ class EquipmentSimulator:
                 self.failed = True
 
         if self.failed:
-            temperature = random.gauss(110, 2)
-            pressure = random.gauss(2.0, 0.2)
-            vibration = random.gauss(6.0, 0.4)
-            rpm = random.gauss(250, 50)
-            current = random.gauss(2.0, 0.3)
-            humidity = random.gauss(45, 3)
+            (
+                temperature,
+                 pressure,
+                 vibration,
+                 rpm,
+                 current,
+                 humidity
+             ) = self._failure_state()
 
         return SensorReading(
             timestamp=datetime.now(UTC),
@@ -136,3 +138,18 @@ class EquipmentSimulator:
     @staticmethod
     def _humidity() -> float:
         return min(100, random.gauss(45.0, 4.0))
+
+    @staticmethod
+    def _failure_state() ->\
+            tuple[float, float, float, float, float, float]:
+        """
+        Sensor values after a failure.
+        """
+        temperature = random.gauss(110, 2)
+        pressure = random.gauss(2.0, 0.2)
+        vibration = random.gauss(6.0, 0.4)
+        rpm = random.gauss(250, 50)
+        current = random.gauss(2.0, 0.3)
+        humidity = random.gauss(45, 3)
+
+        return temperature, pressure, vibration, rpm, current, humidity
