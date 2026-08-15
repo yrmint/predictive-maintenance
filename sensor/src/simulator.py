@@ -22,7 +22,10 @@ class EquipmentSimulator:
         self.failed = False
 
     def step(self) -> SensorReading:
-        """Advance simulation by one time step."""
+        """
+        Advance simulation by one time step.
+        """
+
         if not self.failed:
             self._update_load()
             self._update_wear()
@@ -34,25 +37,17 @@ class EquipmentSimulator:
         current = self._current()
         humidity = self._humidity()
 
-        if not self.failed:
-            failure_probability = (
-                0.0002
-                + 0.15 * self.wear
-                + 0.01 * max(vibration - 1.5, 0)
-                + 0.005 * max(temperature - 80, 0)
-            )
-
-            if random.random() < failure_probability:
+        if not self.failed and self._should_fail(vibration, temperature, current):
                 self.failed = True
 
         if self.failed:
             (
                 temperature,
-                 pressure,
-                 vibration,
-                 rpm,
-                 current,
-                 humidity
+                pressure,
+                vibration,
+                rpm,
+                current,
+                humidity
              ) = self._failure_state()
 
         return SensorReading(
@@ -139,12 +134,39 @@ class EquipmentSimulator:
     def _humidity() -> float:
         return min(100, random.gauss(45.0, 4.0))
 
+    def _should_fail(
+            self, vibration:float, temperature: float, current: float
+    ) -> bool:
+        """
+        Calculate failure risk.
+        """
+
+        base_probability = 0.00001
+        wear_risk = 0.00005 * self.wear ** 4
+
+        vibration_risk = 0.0005 * max(vibration - 1.2, 0.0) ** 2
+        temperature_risk = 0.0002 * max(temperature - 85.0, 0.0) ** 2
+        current_risk = 0.0001 * max(current - 25.0, 0.0) ** 2
+
+        probability = (
+            base_probability
+            + wear_risk
+            + vibration_risk
+            + temperature_risk
+            + current_risk
+        )
+
+        probability = min(probability, 0.05)
+
+        return random.random() < probability
+
     @staticmethod
     def _failure_state() ->\
             tuple[float, float, float, float, float, float]:
         """
         Sensor values after a failure.
         """
+
         temperature = random.gauss(110, 2)
         pressure = random.gauss(2.0, 0.2)
         vibration = random.gauss(6.0, 0.4)
