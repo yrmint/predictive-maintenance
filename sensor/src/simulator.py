@@ -75,47 +75,64 @@ class EquipmentSimulator:
         self.load = min(max(self.load + drift, 0.2), 1.0)
 
     def _update_wear(self) -> None:
-        self.wear += 0.00005 + self.load * 0.00015
+        base_rate = 0.00003
+        load_effect = 0.00008 * self.load ** 2
+        wear_effect = 0.00015 * self.wear ** 2
+        noise = max(random.gauss(0, 0.00001), 0)
+        self.wear += base_rate + load_effect + wear_effect + noise
         self.wear = min(self.wear, 1.0)
 
     def _temperature(self) -> float:
+        wear_effect = 15 * self.wear + 35 * self.wear ** 3
+        noise_std = 0.8 + 1.5 * self.wear
+
         return (
             40.0
             + 35 * self.load
-            + 25 * self.wear
-            + random.gauss(0, 0.8)
+            + wear_effect
+            + random.gauss(0, noise_std)
         )
 
     def _pressure(self) -> float:
+        wear_effect = 0.5 * self.wear + 2.0 * self.wear ** 2
+        noise_std = 0.05 + 0.8 * self.wear
         return (
             6.0
-            - 1.5 * self.wear
-            + random.gauss(0, 0.05)
+            - wear_effect
+            + random.gauss(0, noise_std)
         )
 
     def _vibration(self) -> float:
+        wear_effect = 0.5 * self.wear + 3.0 * self.wear ** 3
+        noise_std = 0.05 + 0.3 * self.wear ** 2
+
         return (
             0.3
-            + 0.8 * self.wear
+            + wear_effect
             + 0.5 * self.load
-            + random.gauss(0, 0.05)
+            + random.gauss(0, noise_std)
         )
 
     def _rpm(self) -> float:
+        noise_std = 15.0 + 60 * self.wear
         return (
             1500
             + 1200 * self.load
-            + random.gauss(0, 20)
+            - 200 * self.wear ** 2
+            + random.gauss(0, noise_std)
         )
 
     def _current(self) -> float:
+        wear_effect = 4 * self.wear + 10 * self.wear ** 2
+        noise_std = 0.4 + 0.8 * self.wear
+
         return (
             5
             + 18 * self.load
-            + 8 * self.wear
-            + random.gauss(0, 0.4)
+            + wear_effect
+            + random.gauss(0, noise_std)
         )
 
     @staticmethod
     def _humidity() -> float:
-        return random.gauss(45, 4)
+        return min(100, random.gauss(45.0, 4.0))
