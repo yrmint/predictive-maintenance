@@ -109,7 +109,7 @@ services:
 
   mlflow:
     build:
-      context: ./mlflow
+      context: ./ml_flow
 
     container_name: mlflow
 
