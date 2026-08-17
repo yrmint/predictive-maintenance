@@ -1,5 +1,6 @@
 from catboost import CatBoostClassifier
 
+
 def train_model(x_train, y_train) -> CatBoostClassifier:
     cl = CatBoostClassifier(
         iterations=500,
