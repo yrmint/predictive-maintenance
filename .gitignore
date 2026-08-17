@@ -6,6 +6,9 @@ data
 ### Intellij ###
 .idea
 
+### CatBoost ###
+notebooks/catboost_info
+
 ### Python ###
 # Byte-compiled / optimized / DLL files
 __pycache__/
