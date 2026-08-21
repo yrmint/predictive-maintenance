@@ -1,5 +1,6 @@
-import pandas as pd
 import numpy as np
+import pandas as pd
+
 
 def add_feature_failure_target(
         df: pd.DataFrame,
@@ -17,7 +18,7 @@ def add_feature_failure_target(
 
     result["failure_next"] = 0
 
-    for device_id, group in result.groupby("device_id"):
+    for _device_id, group in result.groupby("device_id"):
         failure_times = group.loc[
             group["failure"] == 1,
             "time"
